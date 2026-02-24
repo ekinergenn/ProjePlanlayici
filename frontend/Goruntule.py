@@ -11,8 +11,12 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
     QLabel, QPushButton, QScrollArea, QSizePolicy,
     QVBoxLayout, QWidget)
 
+from backend.Proje import Proje
+
+
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog, proje : Proje):
+
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(844, 612)
@@ -26,6 +30,7 @@ class Ui_Dialog(object):
         self.yapilacaklarLbl.setMaximumSize(QSize(150, 20))
         self.yapilacaklarLbl.setMinimumSize(QSize(150, 20))
         self.yapilacaklarLbl.setStyleSheet("font: bold;")
+        self.yapilacaklarLbl.setText("Yapılacaklar")
 
         self.gridLayout.addWidget(self.yapilacaklarLbl, 1, 1, 1, 1)
 
@@ -39,8 +44,23 @@ class Ui_Dialog(object):
                                      "font-weight: bold;"
                                      "border-radius: 10px;")
         self.gitButon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.gitButon.setText("GitHub Repository")
 
         self.gridLayout.addWidget(self.gitButon, 2, 2, 1, 1, Qt.AlignCenter)
+
+        #dosya konumu butonu
+        self.dosyaButon = QPushButton(Dialog)
+        self.dosyaButon.setObjectName(u"dosyaButon")
+        self.dosyaButon.setMaximumSize(QSize(160, 20))
+        self.dosyaButon.setMinimumSize(QSize(160, 20))
+        self.dosyaButon.setStyleSheet("background-color: black;"
+                                     "color: white;"
+                                     "font-weight: bold;"
+                                     "border-radius: 10px;")
+        self.dosyaButon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.dosyaButon.setText("Dosya Konumu")
+
+        self.gridLayout.addWidget(self.dosyaButon, 5, 2, 1, 1)
 
         #geri dön butonu
         self.geriButon = QPushButton(Dialog)
@@ -51,6 +71,7 @@ class Ui_Dialog(object):
                                      "font: bold;"
                                      "border-radius: 10px;")
         self.geriButon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.geriButon.setText("Geri Dön")
 
         self.gridLayout.addWidget(self.geriButon, 0, 0, 1, 1)
 
@@ -61,6 +82,7 @@ class Ui_Dialog(object):
         self.adLbl.setMinimumSize(QSize(150, 35))
         self.adLbl.setStyleSheet("color: black;"
                                  "font: 30px bold;")
+        self.adLbl.setText(proje.ad)
 
         self.gridLayout.addWidget(self.adLbl, 0, 1, 1, 1, Qt.AlignCenter)
 
@@ -74,6 +96,7 @@ class Ui_Dialog(object):
                                      "font-weight: bold;"
                                      "border-radius: 10px;")
         self.duzenleButon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.duzenleButon.setText("Düzenle")
 
         self.gridLayout.addWidget(self.duzenleButon, 0, 2, 1, 1, Qt.AlignCenter)
 
@@ -81,14 +104,19 @@ class Ui_Dialog(object):
         self.dillerLbl = QLabel(Dialog)
         self.dillerLbl.setObjectName(u"dillerLbl")
         self.dillerLbl.setMaximumSize(QSize(1000, 1000))
+        diller_metni = ", ".join(proje.diller)
+        self.dillerLbl.setText(f"Kullanılan Diller: {diller_metni}")
 
         self.gridLayout.addWidget(self.dillerLbl, 3, 2, 1, 1, Qt.AlignCenter)
 
+        #ilerleme Label
         self.ilerlemeLbl = QLabel(Dialog)
         self.ilerlemeLbl.setObjectName(u"ilerlemeLbl")
+        self.ilerlemeLbl.setText(f"%{proje.ilerleme}")
 
         self.gridLayout.addWidget(self.ilerlemeLbl, 4, 2, 1, 1, Qt.AlignCenter)
 
+        #Scroll area (YAPILACAKLAR)
         self.scrollArea = QScrollArea(Dialog)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setStyleSheet("background-color: #3B3B3B;"
@@ -102,31 +130,16 @@ class Ui_Dialog(object):
         self.verticalLayout = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName(u"verticalLayout")
 
-        #scroll areadaki check boxlar ornek
-        self.checkBox_2 = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_2.setObjectName(u"checkBox_2")
-
-        self.verticalLayout.addWidget(self.checkBox_2)
-
-        self.checkBox = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox.setObjectName(u"checkBox")
-
-        self.verticalLayout.addWidget(self.checkBox)
-
-        self.checkBox_3 = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_3.setObjectName(u"checkBox_3")
-
-        self.verticalLayout.addWidget(self.checkBox_3)
-
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        self.gridLayout.addWidget(self.scrollArea, 2, 1, 3, 1, Qt.AlignCenter)
+        self.gridLayout.addWidget(self.scrollArea, 2, 1, 4, 1, Qt.AlignCenter)
 
         # proje amacının yazılı oldugu label
         self.amacLbl = QLabel(Dialog)
         self.amacLbl.setObjectName(u"amacLbl")
+        self.amacLbl.setText(f"Amaç: {proje.amac}")
 
-        self.gridLayout.addWidget(self.amacLbl, 1, 0, 4, 1, Qt.AlignCenter)
+        self.gridLayout.addWidget(self.amacLbl, 1, 0, 5, 1, Qt.AlignCenter)
 
 
         self.retranslateUi(Dialog)
@@ -135,33 +148,25 @@ class Ui_Dialog(object):
     # setupUi
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
+        Dialog.setWindowTitle(QCoreApplication.translate("Proje Planlayıcı", u"Proje Planlayıcı", None))
         Dialog.setStyleSheet("background-color: #969696;")
-        self.yapilacaklarLbl.setText(QCoreApplication.translate("Dialog", u"Yapılacaklar", None))
-        self.gitButon.setText(QCoreApplication.translate("Dialog", u"Github Repostory", None))
-        self.geriButon.setText(QCoreApplication.translate("Dialog", u"Geri Dön", None))
-        self.adLbl.setText(QCoreApplication.translate("Dialog", u"Proje Adı", None))
-        self.duzenleButon.setText(QCoreApplication.translate("Dialog", u"Düzenle", None))
-        self.dillerLbl.setText(QCoreApplication.translate("Dialog", u"Kullanılan Diller: (python vs alt alt yazılacak)", None))
-        self.ilerlemeLbl.setText(QCoreApplication.translate("Dialog", u"İlerleme: %x", None))
-        self.checkBox_2.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 1", None))
-        self.checkBox.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 2", None))
-        self.checkBox_3.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 3", None))
-        self.amacLbl.setText(QCoreApplication.translate("Dialog", u"Amaç: Proje Amacı Buraya Yazılacak", None))
     # retranslateUi
 
-#main       --DAHA SONRA SİLİNECEK--
-class MyApp(QDialog):
-    def __init__(self):
+class GoruntulePenceresi(QDialog):
+    def __init__(self, proje:Proje):
         super().__init__()
-
+        self.proje = proje
         self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self, proje)
+        self.ui.geriButon.clicked.connect(self.close)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    pencere = MyApp()
-    pencere.show()
-
-    sys.exit(app.exec())
+        self.ui.adLbl.setText(self.proje.ad)
+        diller_metni = ", ".join(self.proje.diller)
+        self.ui.dillerLbl.setText(f"Kullanılan Diller: {diller_metni}")
+        self.ui.ilerlemeLbl.setText(f"%{self.proje.ilerleme}")
+        for yapilacak in self.proje.yapilacaklar:
+            check = QCheckBox(self.ui.scrollAreaWidgetContents)
+            check.setText(f"{yapilacak}")
+            check.setStyleSheet("color: white;")
+            self.ui.verticalLayout.addWidget(check)
+        self.ui.amacLbl.setText(proje.amac)

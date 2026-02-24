@@ -1,4 +1,8 @@
+import json
+import os
 import sys
+from distutils.command.check import check
+from tkinter.simpledialog import Dialog
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
                             QMetaObject, QObject, QPoint, QRect,
@@ -9,10 +13,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
                            QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
                                QLabel, QPushButton, QScrollArea, QSizePolicy,
-                               QVBoxLayout, QWidget, QLineEdit, QTextEdit)
+                               QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog)
+
+from backend.Proje import Proje
+
 
 # DUZENLE KISMIDA AYNI OLACAK AMA PLACE HOLDERLARDA VAR OLANLAR YAZACAK
-class Ui_Dialog(object):
+class ProjeEkle(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
@@ -79,19 +86,6 @@ class Ui_Dialog(object):
         self.kaydetButon.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.gridLayout.addWidget(self.kaydetButon, 0, 2, 1, 1, Qt.AlignCenter)
-
-        # sil butonu
-        self.silButon = QPushButton(Dialog)
-        self.silButon.setObjectName(u"silButon")
-        self.silButon.setMaximumSize(QSize(70, 20))
-        self.silButon.setMinimumSize(QSize(70, 20))
-        self.silButon.setStyleSheet("background-color: rgb(200, 0, 0);"
-                                    "color: white;"
-                                     "font: bold;"
-                                     "border-radius: 10px;")
-        self.silButon.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        self.gridLayout.addWidget(self.silButon, 0, 3, 1, 1)
 
         # ekle butonu
         self.ekleButon = QPushButton(Dialog)
@@ -179,17 +173,21 @@ class Ui_Dialog(object):
 
         QMetaObject.connectSlotsByName(Dialog)
 
+        #buton baglantilari
+        self.kaydetButon.clicked.connect(lambda: self.jsona_kaydet(Dialog))
+        self.ekleButon.clicked.connect(self.yapilacakEklePopup)
+        self.secilenButon.clicked.connect(self.secilenSil)
+
     # setupUi
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
+        Dialog.setWindowTitle(QCoreApplication.translate("Proje Planlayıcı", u"Proje Planlayıcı", None))
         Dialog.setStyleSheet("background-color: #969696;")
         self.yapilacaklarLbl.setText(QCoreApplication.translate("Dialog", u"Yapılacaklar", None))
         self.gitLine.setText(QCoreApplication.translate("Dialog", None))
         self.geriButon.setText(QCoreApplication.translate("Dialog", u"Geri Dön", None))
         self.adLine.setText(QCoreApplication.translate("Dialog",None))
-        self.kaydetButon.setText(QCoreApplication.translate("Dialog", u"Düzenle", None))
-        self.silButon.setText(QCoreApplication.translate("Dialog", u"Sil", None))
+        self.kaydetButon.setText(QCoreApplication.translate("Dialog", u"Kaydet", None))
         self.dillerTxtEdit.setText(QCoreApplication.translate("Dialog", None))
         self.ekleButon.setText(QCoreApplication.translate("Dialog", u"Ekle", None))
         self.secilenButon.setText(QCoreApplication.translate("Dialog", u"Seçilenleri Sil", None))
@@ -200,20 +198,86 @@ class Ui_Dialog(object):
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
     # retranslateUi
 
+    def jsona_kaydet(self, Dialog):
+        yapilacakSayisi = 0
+        yapilmislarSayisi = 0
+        ilerlemeHesap = 0
+        for i in range(self.verticalLayout.count()):
+            w = self.verticalLayout.itemAt(i).widget()
+            if isinstance(w, QCheckBox):
+                yapilacakSayisi+=1
+                if w.isChecked():
+                    yapilmislarSayisi+=1
 
-# main       --DAHA SONRA SİLİNECEK--
-class MyApp(QDialog):
+        if yapilacakSayisi > 0:
+            ilerlemeHesap = (yapilmislarSayisi / float(yapilacakSayisi)) * 100
+        else:
+            ilerlemeHesap = 0.0
+
+        yeni_proje = {
+            "ad": self.adLine.text().strip(),
+            "amac": self.amacTxtEdit.toPlainText().strip(),
+            "ilerleme": ilerlemeHesap,
+            "yapilacaklar": self.yapilacaklarAl(),
+            "github": self.gitLine.text().strip(),
+            "diller": [dil.strip() for dil in self.dillerTxtEdit.toPlainText().split(",") if dil.strip()],
+        }
+
+        dosya_yolu = "../data/projeler.json"
+
+        try:
+            with open(dosya_yolu, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {"proje": []}
+        if "proje" in data:
+            data["proje"].append(yeni_proje)
+        else:
+            data["proje"] = [yeni_proje]
+
+        try:
+            with open(dosya_yolu, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Dosya yazılırken hata oluştu: {e}")
+
+        Dialog.close()
+
+    def yapilacaklarAl(self):
+        yapilacaklar = []
+        for i in range(self.verticalLayout.count()):
+            item = self.verticalLayout.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                yapilacaklar.append(widget.text())
+        return yapilacaklar
+
+    def yapilacakEklePopup(self):
+        text, ok = QInputDialog.getText(None, 'Yeni Görev', 'Yapılacak işi giriniz:')
+
+        if ok and text.strip():
+            self.yeniCheckbox(text)
+
+    def yeniCheckbox(self, gorev_metni):
+        yeni_check = QCheckBox(self.scrollAreaWidgetContents)
+
+        yeni_check.setText(gorev_metni)
+        yeni_check.setStyleSheet("color: white; font-size: 14px;")
+
+        self.verticalLayout.addWidget(yeni_check)
+
+    def secilenSil(self):
+        for i in reversed(range(self.verticalLayout.count())):
+            item = self.verticalLayout.itemAt(i)
+            widget = item.widget()
+
+            if isinstance(widget, QCheckBox) and widget.isChecked():
+                self.verticalLayout.removeWidget(widget)
+                widget.deleteLater()
+
+class ProjeEklePenceresi(QDialog):
     def __init__(self):
         super().__init__()
-
-        self.ui = Ui_Dialog()
+        self.ui = ProjeEkle()
         self.ui.setupUi(self)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    pencere = MyApp()
-    pencere.show()
-
-    sys.exit(app.exec())
+        self.ui.geriButon.clicked.connect(self.close)

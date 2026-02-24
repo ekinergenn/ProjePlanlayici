@@ -1,19 +1,47 @@
-{"proje": [
+{
+    "proje": [
         {
             "ad": "örnek1",
             "amac": "ornek 1 projesinin amacı...",
             "ilerleme": 0,
-            "yapilacaklar": ["yapılacak1","yapılacak2"],
+            "yapilacaklar": [
+                "yapılacak1",
+                "yapılacak2"
+            ],
             "github": "ornek1.githublink",
-            "diller": ["python","java"]
+            "diller": [
+                "python",
+                "java"
+            ]
         },
         {
             "ad": "örnek2",
             "amac": "ornek 2 projesinin amacı...",
             "ilerleme": 10,
-            "yapilacaklar": ["yapılacak1","yapılacak2","yapılacak3"],
+            "yapilacaklar": [
+                "yapılacak1",
+                "yapılacak2",
+                "yapılacak3"
+            ],
             "github": "ornek2.githublink",
-            "diller": ["python"]
+            "diller": [
+                "python"
+            ]
+        },
+        {
+            "ad": "bitmis",
+            "amac": "ornek projesinin amacı...",
+            "ilerleme": 100,
+            "yapilacaklar": [
+                "yapılacak1",
+                "yapılacak2"
+            ],
+            "github": "bitmis.githublink",
+            "diller": [
+                "python",
+                "java",
+                "c"
+            ]
         }
-  ]
-  }
+    ]
+}

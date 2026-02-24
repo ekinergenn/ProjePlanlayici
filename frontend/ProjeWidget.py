@@ -1,19 +1,36 @@
 import sys
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QApplication, QDialog
+from PySide6.QtGui import QPainter
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QApplication, QDialog, \
+    QStyleOption, QStyle
+from PySide6.QtCore import Signal, Qt
+
+from backend.Proje import Proje
+from frontend.Goruntule import GoruntulePenceresi
 
 
 class ProjeWidget(QWidget):
-    def __init__(self, proje_adi, tamamlama_orani):
+    tiklandi = Signal(object)
+    def __init__(self, proje : Proje):
         super().__init__()
+        self.proje = proje
+
+        if isinstance(proje, dict):
+            ad = proje.get("ad")
+            ilerleme = proje.get("ilerleme")
+        else:
+            ad = proje.ad
+            ilerleme = proje.ilerleme
+
+        self.projeAdi = QLabel(str(ad))
 
         self.setMaximumHeight(50)
 
         self.layout = QHBoxLayout(self)
 
         #proje adı
-        self.projeAdi = QLabel(proje_adi)
+        self.projeAdi = QLabel(proje.ad)
         self.projeAdi.setStyleSheet("background-color: transparent;"
                                      "color: white;")
 
@@ -28,13 +45,30 @@ class ProjeWidget(QWidget):
         self.goruntuleButonu.setCursor(Qt.CursorShape.PointingHandCursor)
 
         #tamamlanma oranı kısmı
-        self.oran = QLabel(f"%{tamamlama_orani}")
+        self.oran = QLabel(f"%{proje.ilerleme}")
         self.oran.setStyleSheet("background-color: transparent;"
                                 "color: white;")
-        self.oran.setMaximumSize(30, 20)
+        self.oran.setMaximumSize(40, 20)
 
         self.layout.addWidget(self.projeAdi)
         self.layout.addWidget(self.goruntuleButonu)
         self.layout.addWidget(self.oran)
 
-        self.setStyleSheet("background-color: #f0f0f0; border-radius: 5px;")
+        self.setStyleSheet("ProjeWidget{"
+                           "border: 2px solid black;"
+                           "border-radius: 10px;}")
+
+        self.goruntuleButonu.clicked.connect(self.goruntuleAc)
+
+    def tiklanmaEvent(self, event):
+        self.tiklandi.emit(self.proje)
+
+    def goruntuleAc(self):
+        self.goruntulepencere = GoruntulePenceresi(self.proje)
+        self.goruntulepencere.show()
+
+    def paintEvent(self, event):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)

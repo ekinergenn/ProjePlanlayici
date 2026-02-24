@@ -1,4 +1,6 @@
+import json
 import sys
+from tokenize import String
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -12,6 +14,9 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QGridLayout,
                                QWidget, QLineEdit, QVBoxLayout)
 
 from ProjeWidget import ProjeWidget
+from backend.Proje import Proje
+from ProjeEkle import ProjeEklePenceresi
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -37,14 +42,13 @@ class Ui_Dialog(object):
         self.scrollLayout.setAlignment(Qt.AlignTop)
         self.scrollLayout.setSpacing(5)
 
-        # ORNEKLER
-        self.proje1 = ProjeWidget("Proje1",45)
-        self.proje2 = ProjeWidget("Proje1", 45)
-        self.proje3 = ProjeWidget("Proje1", 45)
-        self.proje4 = ProjeWidget("Proje1", 45)
-        self.scrollLayout.addWidget(self.proje1, 1)
-        self.scrollLayout.addWidget(self.proje2, 1)
-        self.scrollLayout.addWidget(self.proje3, 2)
+        # proje widgetları
+        self.projeler = self.jsonVerileri()
+
+        for i in range(len(self.projeler)):
+            proje = Proje.from_dict(self.projeler[i])
+            self.pWidget = ProjeWidget(proje)
+            self.scrollLayout.addWidget(self.pWidget, 1)
 
         self.gridLayout.addWidget(self.scrollArea, 1, 0, 1, 4)
 
@@ -119,6 +123,12 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
 
         QMetaObject.connectSlotsByName(Dialog)
+
+        #buton tıklamaları
+        self.aramaButonu.clicked.connect(lambda: self.arama(self.projeler))
+        self.comboBox.currentTextChanged.connect(lambda: self.tamamlanma(self.projeler, self.comboBox.currentText()))
+        self.ekleButon.clicked.connect(lambda: self.ekleAc())
+
     # setupUi
 
     def retranslateUi(self, Dialog):
@@ -126,6 +136,60 @@ class Ui_Dialog(object):
         Dialog.setStyleSheet("background-color: #969696;")
         self.ekleButon.setText(QCoreApplication.translate("Dialog", u"Ekle", None))
     # retranslateUi
+
+    def jsonVerileri(self):
+        with open("../data/projeler.json", "r", encoding="utf-8") as dosya:
+            veri = json.load(dosya)
+            return veri.get("proje", [])
+
+    def arama(self, projeler):
+        aranacak = self.aramaCubugu.text()
+        uyumlu = []
+        for veri in projeler:
+            proje = Proje.from_dict(veri)
+            if aranacak.lower() in proje.ad.lower():
+                uyumlu.append(proje)
+        self.sAreaGuncelle(uyumlu)
+
+    def tamamlanma(self, projeler, tamamlama):
+        uyumlu = []
+        if tamamlama == "Tamamlanmış":
+            for veri in projeler:
+                proje = Proje.from_dict(veri)
+                if proje.ilerleme == 100:
+                    uyumlu.append(proje)
+        else:
+            for veri in projeler:
+                proje = Proje.from_dict(veri)
+                if proje.ilerleme != 100:
+                    uyumlu.append(proje)
+
+        self.sAreaGuncelle(uyumlu)
+
+    def ekleAc(self):
+        self.yeni_pencere = ProjeEklePenceresi()
+        self.yeni_pencere.finished.connect(lambda: self.listeyi_tazele())
+        self.yeni_pencere.show()
+
+    def listeyi_tazele(self):
+        self.projeler = self.jsonVerileri()
+        self.sAreaGuncelle(self.projeler)
+
+    def sAreaGuncelle(self, liste):
+
+        while self.scrollLayout.count():
+            item = self.scrollLayout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        for proje in liste:
+            self.pWidget = ProjeWidget(Proje.from_dict(proje))
+            self.scrollLayout.addWidget(self.pWidget,1)
+            self.pWidget.show()
+
+        self.scrollAreaWidgetContents.adjustSize()
+        self.scrollArea.update()
 
 #main       --DAHA SONRA SİLİNECEK--
 class MyApp(QDialog):
