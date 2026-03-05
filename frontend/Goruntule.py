@@ -1,3 +1,4 @@
+import json
 import sys
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
@@ -12,6 +13,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
     QVBoxLayout, QWidget)
 
 from backend.Proje import Proje
+from frontend.ProjeWidget import ProjeWidget
 
 
 class Ui_Dialog(object):
@@ -145,12 +147,38 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
 
         QMetaObject.connectSlotsByName(Dialog)
+
     # setupUi
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Proje Planlayıcı", u"Proje Planlayıcı", None))
         Dialog.setStyleSheet("background-color: #969696;")
     # retranslateUi
+
+    def jsonVerileri(self):
+        with open("../data/projeler.json", "r", encoding="utf-8") as dosya:
+            veri = json.load(dosya)
+            return veri.get("proje", [])
+
+    def listeyi_tazele(self):
+        self.projeler = self.jsonVerileri()
+        self.sAreaGuncelle(self.projeler)
+
+    def sAreaGuncelle(self, liste):
+
+        while self.scrollLayout.count():
+            item = self.verticalLayout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        for proje in liste:
+            self.pWidget = ProjeWidget(Proje.from_dict(proje))
+            self.verticalLayout.addWidget(self.pWidget,1)
+            self.pWidget.show()
+
+        self.scrollAreaWidgetContents.adjustSize()
+        self.scrollArea.update()
 
 class GoruntulePenceresi(QDialog):
     def __init__(self, proje:Proje):
@@ -160,13 +188,19 @@ class GoruntulePenceresi(QDialog):
         self.ui.setupUi(self, proje)
         self.ui.geriButon.clicked.connect(self.close)
 
+        # duzenle butonu baglantisi
+        self.ui.duzenleButon.clicked.connect(self.duzenleAc)
+
         self.ui.adLbl.setText(self.proje.ad)
         diller_metni = ", ".join(self.proje.diller)
         self.ui.dillerLbl.setText(f"Kullanılan Diller: {diller_metni}")
         self.ui.ilerlemeLbl.setText(f"%{self.proje.ilerleme}")
-        for yapilacak in self.proje.yapilacaklar:
-            check = QCheckBox(self.ui.scrollAreaWidgetContents)
-            check.setText(f"{yapilacak}")
-            check.setStyleSheet("color: white;")
-            self.ui.verticalLayout.addWidget(check)
-        self.ui.amacLbl.setText(proje.amac)
+        for gorev in self.proje.yapilacaklar:
+            yeni_check = QCheckBox(gorev["is"])
+            yeni_check.setChecked(gorev["durum"])
+            self.ui.verticalLayout.addWidget(yeni_check)
+
+    def duzenleAc(self):
+        from frontend.Duzenle import DuzenlePenceresi
+        self.duzenlePencere = DuzenlePenceresi(self.proje)
+        self.duzenlePencere.show()

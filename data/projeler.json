@@ -5,43 +5,85 @@
             "amac": "ornek 1 projesinin amacı...",
             "ilerleme": 0,
             "yapilacaklar": [
-                "yapılacak1",
-                "yapılacak2"
+                {
+                    "is": "Kod yaz",
+                    "durum": false
+                },
+                {
+                    "is": "Test et",
+                    "durum": false
+                }
             ],
             "github": "ornek1.githublink",
             "diller": [
                 "python",
                 "java"
-            ]
+            ],
+            "dosya": "dosyakonum1"
         },
         {
             "ad": "örnek2",
             "amac": "ornek 2 projesinin amacı...",
             "ilerleme": 10,
             "yapilacaklar": [
-                "yapılacak1",
-                "yapılacak2",
-                "yapılacak3"
+                {
+                    "is": "Kod yaz",
+                    "durum": true
+                },
+                {
+                    "is": "Test et",
+                    "durum": false
+                }
             ],
             "github": "ornek2.githublink",
             "diller": [
                 "python"
-            ]
+            ],
+            "dosya": "dosyakonum2"
         },
         {
             "ad": "bitmis",
             "amac": "ornek projesinin amacı...",
             "ilerleme": 100,
             "yapilacaklar": [
-                "yapılacak1",
-                "yapılacak2"
+                {
+                    "is": "Kod yaz",
+                    "durum": true
+                },
+                {
+                    "is": "Test et",
+                    "durum": true
+                }
             ],
             "github": "bitmis.githublink",
             "diller": [
                 "python",
                 "java",
                 "c"
-            ]
+            ],
+            "dosya": "dosyakonum3"
+        },
+        {
+            "ad": "",
+            "amac": "",
+            "ilerleme": 66.66666666666666,
+            "yapilacaklar": [
+                {
+                    "is": "Örnek Yapılacak 1",
+                    "durum": true
+                },
+                {
+                    "is": "Örnek Yapılacak 2",
+                    "durum": true
+                },
+                {
+                    "is": "Örnek Yapılacak 3",
+                    "durum": false
+                }
+            ],
+            "github": "",
+            "diller": [],
+            "dosya": ""
         }
     ]
 }

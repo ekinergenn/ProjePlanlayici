@@ -1,11 +1,12 @@
 class Proje:
-    def __init__(self,ad:str,amac:str,ilerleme:float,yapilacaklar:list,github:str,diller:list):
+    def __init__(self,ad:str,amac:str,ilerleme:float,yapilacaklar:list,github:str,diller:list,dosya:str):
         self.ad = ad
         self.amac = amac
         self.ilerleme = ilerleme
         self.yapilacaklar = yapilacaklar
         self.github = github
         self.diller = diller
+        self.dosya =dosya
 
     @classmethod
     def from_dict(cls, veri: dict):
@@ -15,7 +16,8 @@ class Proje:
             veri["ilerleme"],
             veri["yapilacaklar"],
             veri["github"],
-            veri["diller"]
+            veri["diller"],
+            veri["dosya"]
         )
 
     def sozluk_veri(self) -> dict:
@@ -25,7 +27,8 @@ class Proje:
             "ilerleme":0,
             "yapilacaklar":[],
             "github":"",
-            "diller":[]
+            "diller":[],
+            "dosya":""
         }
 
         veri["ad"] = self.ad
@@ -34,4 +37,5 @@ class Proje:
         veri["yapilacaklar"] = self.yapilacaklar
         veri["github"] = self.github
         veri["diller"] = self.diller
+        veri["dosya"] = self.dosya
         return veri

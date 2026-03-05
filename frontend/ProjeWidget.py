@@ -7,7 +7,6 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLa
 from PySide6.QtCore import Signal, Qt
 
 from backend.Proje import Proje
-from frontend.Goruntule import GoruntulePenceresi
 
 
 class ProjeWidget(QWidget):
@@ -64,6 +63,7 @@ class ProjeWidget(QWidget):
         self.tiklandi.emit(self.proje)
 
     def goruntuleAc(self):
+        from frontend.Goruntule import GoruntulePenceresi
         self.goruntulepencere = GoruntulePenceresi(self.proje)
         self.goruntulepencere.show()
 

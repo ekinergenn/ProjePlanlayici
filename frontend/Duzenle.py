@@ -1,32 +1,37 @@
 import json
-import os
 import sys
-from distutils.command.check import check
-from tkinter.simpledialog import Dialog
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-                            QMetaObject, QObject, QPoint, QRect,
-                            QSize, QTime, QUrl, Qt)
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-                           QFont, QFontDatabase, QGradient, QIcon,
-                           QImage, QKeySequence, QLinearGradient, QPainter,
-                           QPalette, QPixmap, QRadialGradient, QTransform)
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
                                QLabel, QPushButton, QScrollArea, QSizePolicy,
                                QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog)
+from shiboken6.Shiboken import Object
 
 from backend.Proje import Proje
 
-
-# DUZENLE KISMIDA AYNI OLACAK AMA PLACE HOLDERLARDA VAR OLANLAR YAZACAK
-class ProjeEkle(object):
-    def setupUi(self, Dialog):
+class Duzenle(Object):
+    def setupUi(self, Dialog, proje : Proje):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(844, 612)
 
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setObjectName(u"gridLayout")
+
+        # proje
+        self.ad = proje.ad
+        self.amac = proje.amac
+        self.ilerleme = proje.ilerleme
+        self.yapilacaklar = proje.yapilacaklar
+        self.github = proje.github
+        self.diller = proje.diller
+        self.dosya = proje.dosya
 
         # yapılacaklar labelı
         self.yapilacaklarLbl = QLabel(Dialog)
@@ -43,23 +48,23 @@ class ProjeEkle(object):
         self.gitLine.setMaximumSize(QSize(180, 20))
         self.gitLine.setMinimumSize(QSize(180, 20))
         self.gitLine.setStyleSheet("background-color: #696969;"
-                                    "color: white;"
-                                    "border-radius: 5px;")
-        self.gitLine.setPlaceholderText("GitHub Repostory Linki...")
+                                   "color: white;"
+                                   "border-radius: 5px;")
+        self.gitLine.setPlaceholderText(self.github)
         self.gitLine.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.gridLayout.addWidget(self.gitLine, 2, 2, 1, 2, Qt.AlignCenter)
 
-        #dosya konumu line edit
+        # dosya konumu line edit
         self.dosyaLine = QLineEdit(Dialog)
         self.dosyaLine.setObjectName(u"dosyaLine")
         self.dosyaLine.setMaximumSize(QSize(180, 20))
         self.dosyaLine.setMinimumSize(QSize(180, 20))
         self.dosyaLine.setStyleSheet("background-color: #696969;"
-                                    "color: white;"
-                                    "border-radius: 5px;")
+                                     "color: white;"
+                                     "border-radius: 5px;")
         self.dosyaLine.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.dosyaLine.setPlaceholderText("Dosya Konumu...")
+        self.dosyaLine.setPlaceholderText(self.dosya)
 
         self.gridLayout.addWidget(self.dosyaLine, 5, 2, 1, 1)
 
@@ -81,8 +86,8 @@ class ProjeEkle(object):
         self.adLine.setMaximumSize(QSize(150, 35))
         self.adLine.setMinimumSize(QSize(150, 35))
         self.adLine.setStyleSheet("color: black;"
-                                 "font: 30px bold;")
-        self.adLine.setPlaceholderText("Proje Adı...")
+                                  "font: 30px bold;")
+        self.adLine.setPlaceholderText(self.ad)
         self.adLine.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.gridLayout.addWidget(self.adLine, 0, 1, 1, 1, Qt.AlignCenter)
@@ -93,9 +98,9 @@ class ProjeEkle(object):
         self.kaydetButon.setMaximumSize(QSize(100, 20))
         self.kaydetButon.setMinimumSize(QSize(100, 20))
         self.kaydetButon.setStyleSheet("background-color: black;"
-                                        "color: white;"
-                                        "font-weight: bold;"
-                                        "border-radius: 10px;")
+                                       "color: white;"
+                                       "font-weight: bold;"
+                                       "border-radius: 10px;")
         self.kaydetButon.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.gridLayout.addWidget(self.kaydetButon, 0, 2, 1, 1, Qt.AlignCenter)
@@ -106,9 +111,9 @@ class ProjeEkle(object):
         self.ekleButon.setMaximumSize(QSize(70, 20))
         self.ekleButon.setMinimumSize(QSize(70, 20))
         self.ekleButon.setStyleSheet("background-color: black;"
-                                        "color: white;"
-                                        "font-weight: bold;"
-                                        "border-radius: 10px;")
+                                     "color: white;"
+                                     "font-weight: bold;"
+                                     "border-radius: 10px;")
         self.ekleButon.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.gridLayout.addWidget(self.ekleButon, 5, 1, 1, 1)
@@ -130,17 +135,22 @@ class ProjeEkle(object):
         self.dillerTxtEdit = QTextEdit(Dialog)
         self.dillerTxtEdit.setObjectName(u"dillerTxtEdit")
         self.dillerTxtEdit.setMaximumSize(QSize(1000, 1000))
-        self.dillerTxtEdit.setPlaceholderText("Kullanılan Dilleri Giriniz:")
+        dilTxt = ""
+        for dil in self.diller:
+            dilTxt += dil
+            dilTxt += ","
+        self.dillerTxtEdit.setPlaceholderText(dilTxt)
 
         self.gridLayout.addWidget(self.dillerTxtEdit, 3, 2, 1, 2, Qt.AlignCenter)
 
-        #ilerleme lbl değiştirilemez mevcut yapılacaklar sayısı ile tamamlanmış yapılanlar oranıdır
+        # ilerleme lbl değiştirilemez mevcut yapılacaklar sayısı ile tamamlanmış yapılanlar oranıdır
         self.ilerlemeLbl = QLabel(Dialog)
         self.ilerlemeLbl.setObjectName(u"ilerlemeLbl")
+        self.ilerlemeLbl.setText(str(self.ilerleme))
 
         self.gridLayout.addWidget(self.ilerlemeLbl, 4, 2, 1, 2, Qt.AlignCenter)
 
-        #scroll areada bir farklılık yok
+        # scroll area
         self.scrollArea = QScrollArea(Dialog)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setStyleSheet("background-color: #3B3B3B;"
@@ -154,31 +164,15 @@ class ProjeEkle(object):
         self.verticalLayout = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName(u"verticalLayout")
 
-        # scroll areadaki check boxlar ornek
-        self.checkBox_2 = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_2.setObjectName(u"checkBox_2")
-
-        self.verticalLayout.addWidget(self.checkBox_2)
-
-        self.checkBox = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox.setObjectName(u"checkBox")
-
-        self.verticalLayout.addWidget(self.checkBox)
-
-        self.checkBox_3 = QCheckBox(self.scrollAreaWidgetContents)
-        self.checkBox_3.setObjectName(u"checkBox_3")
-
-        self.verticalLayout.addWidget(self.checkBox_3)
-
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        self.gridLayout.addWidget(self.scrollArea, 2, 1, 3, 1, Qt.AlignCenter)
+        self.gridLayout.addWidget(self.scrollArea, 2, 1, 4, 1, Qt.AlignCenter)
 
         # proje amacı textedit
         self.amacTxtEdit = QTextEdit(Dialog)
         self.amacTxtEdit.setObjectName(u"amacTxtEdit")
-        self.amacTxtEdit.setPlaceholderText("Projenin amacını giriniz...")
-        self.amacTxtEdit.setMinimumSize(300,300)
+        self.amacTxtEdit.setPlaceholderText(self.amac)
+        self.amacTxtEdit.setMinimumSize(300, 300)
 
         self.gridLayout.addWidget(self.amacTxtEdit, 1, 0, 4, 1, Qt.AlignCenter)
 
@@ -186,12 +180,11 @@ class ProjeEkle(object):
 
         QMetaObject.connectSlotsByName(Dialog)
 
-        #buton baglantilari
+        # buton baglantilari
         self.kaydetButon.clicked.connect(lambda: self.jsona_kaydet(Dialog))
         self.ekleButon.clicked.connect(self.yapilacakEklePopup)
         self.secilenButon.clicked.connect(self.secilenSil)
-
-    # setupUi
+        # setupUi
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Proje Planlayıcı", u"Proje Planlayıcı", None))
@@ -199,28 +192,27 @@ class ProjeEkle(object):
         self.yapilacaklarLbl.setText(QCoreApplication.translate("Dialog", u"Yapılacaklar", None))
         self.gitLine.setText(QCoreApplication.translate("Dialog", None))
         self.geriButon.setText(QCoreApplication.translate("Dialog", u"Geri Dön", None))
-        self.adLine.setText(QCoreApplication.translate("Dialog",None))
+        self.adLine.setText(QCoreApplication.translate("Dialog", None))
         self.kaydetButon.setText(QCoreApplication.translate("Dialog", u"Kaydet", None))
         self.dillerTxtEdit.setText(QCoreApplication.translate("Dialog", None))
         self.ekleButon.setText(QCoreApplication.translate("Dialog", u"Ekle", None))
         self.secilenButon.setText(QCoreApplication.translate("Dialog", u"Seçilenleri Sil", None))
         self.ilerlemeLbl.setText(QCoreApplication.translate("Dialog", u"İlerleme: %x", None))
-        self.checkBox_2.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 1", None))
-        self.checkBox.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 2", None))
-        self.checkBox_3.setText(QCoreApplication.translate("Dialog", u"Örnek Yapılacak 3", None))
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
-    # retranslateUi
+        # retranslateUi
 
-    def jsona_kaydet(self, Dialog):
+    def jsona_kaydet(self, Dialog, proje: Proje):
+        self.proje_sil(proje.ad)
+
         yapilacakSayisi = 0
         yapilmislarSayisi = 0
         ilerlemeHesap = 0
         for i in range(self.verticalLayout.count()):
             w = self.verticalLayout.itemAt(i).widget()
             if isinstance(w, QCheckBox):
-                yapilacakSayisi+=1
+                yapilacakSayisi += 1
                 if w.isChecked():
-                    yapilmislarSayisi+=1
+                    yapilmislarSayisi += 1
 
         if yapilacakSayisi > 0:
             ilerlemeHesap = (yapilmislarSayisi / float(yapilacakSayisi)) * 100
@@ -259,13 +251,11 @@ class ProjeEkle(object):
 
     def yapilacaklarAl(self):
         liste = []
-        # Layout içindeki her şeyi tek tek kontrol et
         for i in range(self.verticalLayout.count()):
             item = self.verticalLayout.itemAt(i)
             if item is None: continue
 
             widget = item.widget()
-            # Sadece QCheckBox olanları ve boş olmayanları al
             if isinstance(widget, QCheckBox):
                 metin = widget.text().strip()
                 if metin:
@@ -300,9 +290,40 @@ class ProjeEkle(object):
                 self.verticalLayout.removeWidget(widget)
                 widget.deleteLater()
 
-class ProjeEklePenceresi(QDialog):
-    def __init__(self):
+    def proje_sil(proje_adi):
+        dosya_yolu = "../data/projeler.json"
+
+        try:
+            with open(dosya_yolu, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            yeni_liste = [p for p in data["proje"] if p["ad"] != proje_adi]
+
+            if len(yeni_liste) == len(data["proje"]):
+                print(f"Sistemde '{proje_adi}' isminde bir proje bulunamadı.")
+                return False
+
+            data["proje"] = yeni_liste
+            with open(dosya_yolu, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+
+            print(f"'{proje_adi}' başarıyla silindi.")
+            return True
+
+        except Exception as e:
+            print(f"Silme işlemi sırasında hata: {e}")
+            return False
+
+
+class DuzenlePenceresi(QDialog):
+    def __init__(self, proje: Proje):
         super().__init__()
-        self.ui = ProjeEkle()
-        self.ui.setupUi(self)
+        self.proje = proje
+        self.ui = Duzenle()
+        self.ui.setupUi(self, proje)
         self.ui.geriButon.clicked.connect(self.close)
+
+        for gorev in self.proje.yapilacaklar:
+            yeni_check = QCheckBox(gorev["is"])
+            yeni_check.setChecked(gorev["durum"])
+            self.ui.verticalLayout.addWidget(yeni_check)
