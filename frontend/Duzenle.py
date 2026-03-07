@@ -19,7 +19,9 @@ class Duzenle(Object):
     def setupUi(self, Dialog, proje : Proje):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(844, 612)
+        Dialog.resize(844, 700)
+
+        self.proje = proje
 
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -181,7 +183,7 @@ class Duzenle(Object):
         QMetaObject.connectSlotsByName(Dialog)
 
         # buton baglantilari
-        self.kaydetButon.clicked.connect(lambda: self.jsona_kaydet(Dialog))
+        self.kaydetButon.clicked.connect(lambda: self.jsona_kaydet(Dialog,self.proje))
         self.ekleButon.clicked.connect(self.yapilacakEklePopup)
         self.secilenButon.clicked.connect(self.secilenSil)
         # setupUi
@@ -201,8 +203,9 @@ class Duzenle(Object):
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
         # retranslateUi
 
-    def jsona_kaydet(self, Dialog, proje: Proje):
-        self.proje_sil(proje.ad)
+    def jsona_kaydet(self, Dialog, proje:Proje):
+        self.proje = proje
+        self.proje_sil(self.proje.ad)
 
         yapilacakSayisi = 0
         yapilmislarSayisi = 0
@@ -237,6 +240,7 @@ class Duzenle(Object):
         except (FileNotFoundError, json.JSONDecodeError):
             data = {"proje": []}
         if "proje" in data:
+            data["proje"] = [p for p in data["proje"] if p["ad"] != proje.ad]
             data["proje"].append(yeni_proje)
         else:
             data["proje"] = [yeni_proje]
@@ -244,10 +248,9 @@ class Duzenle(Object):
         try:
             with open(dosya_yolu, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
+            Dialog.accept()
         except Exception as e:
             print(f"Dosya yazılırken hata oluştu: {e}")
-
-        Dialog.close()
 
     def yapilacaklarAl(self):
         liste = []
@@ -267,12 +270,6 @@ class Duzenle(Object):
         print(f"DEBUG: Fonksiyondan çıkan toplam eleman: {len(liste)}")
         return liste
 
-    def yapilacakEklePopup(self):
-        text, ok = QInputDialog.getText(None, 'Yeni Görev', 'Yapılacak işi giriniz:')
-
-        if ok and text.strip():
-            self.yeniCheckbox(text)
-
     def yeniCheckbox(self, gorev_metni):
         yeni_check = QCheckBox(self.scrollAreaWidgetContents)
 
@@ -290,7 +287,7 @@ class Duzenle(Object):
                 self.verticalLayout.removeWidget(widget)
                 widget.deleteLater()
 
-    def proje_sil(proje_adi):
+    def proje_sil(self, proje_adi):
         dosya_yolu = "../data/projeler.json"
 
         try:
@@ -314,13 +311,19 @@ class Duzenle(Object):
             print(f"Silme işlemi sırasında hata: {e}")
             return False
 
+    def yapilacakEklePopup(self):
+        text, ok = QInputDialog.getText(None, 'Yeni Görev', 'Yapılacak işi giriniz:')
+
+        if ok and text.strip():
+            self.yeniCheckbox(text)
+
 
 class DuzenlePenceresi(QDialog):
     def __init__(self, proje: Proje):
         super().__init__()
         self.proje = proje
         self.ui = Duzenle()
-        self.ui.setupUi(self, proje)
+        self.ui.setupUi(self, self.proje)
         self.ui.geriButon.clicked.connect(self.close)
 
         for gorev in self.proje.yapilacaklar:

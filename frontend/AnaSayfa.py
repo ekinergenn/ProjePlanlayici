@@ -172,6 +172,7 @@ class Ui_Dialog(object):
         self.yeni_pencere.show()
 
     def listeyi_tazele(self):
+        self.projeler = []
         self.projeler = self.jsonVerileri()
         self.sAreaGuncelle(self.projeler)
 
@@ -183,10 +184,15 @@ class Ui_Dialog(object):
             if widget is not None:
                 widget.deleteLater()
 
-        for proje in liste:
-            self.pWidget = ProjeWidget(Proje.from_dict(proje))
-            self.scrollLayout.addWidget(self.pWidget,1)
-            self.pWidget.show()
+        for veri in liste:
+            if isinstance(veri, dict):
+                proje_objesi = Proje.from_dict(veri)
+            else:
+                proje_objesi = veri
+
+            self.pWidget = ProjeWidget(proje_objesi)
+            self.pWidget.ana_sayfayi_tazele_sinyali.connect(self.listeyi_tazele)
+            self.scrollLayout.addWidget(self.pWidget)
 
         self.scrollAreaWidgetContents.adjustSize()
         self.scrollArea.update()

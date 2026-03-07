@@ -5,12 +5,13 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QApplication, QDialog, \
     QStyleOption, QStyle
 from PySide6.QtCore import Signal, Qt
+from shiboken6.Shiboken import Object
 
 from backend.Proje import Proje
 
 
 class ProjeWidget(QWidget):
-    tiklandi = Signal(object)
+    ana_sayfayi_tazele_sinyali = Signal(Object)
     def __init__(self, proje : Proje):
         super().__init__()
         self.proje = proje

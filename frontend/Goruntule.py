@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
 
 from backend.Proje import Proje
 from frontend.ProjeWidget import ProjeWidget
+from PySide6.QtCore import Signal
 
 
 class Ui_Dialog(object):
@@ -160,27 +161,9 @@ class Ui_Dialog(object):
             veri = json.load(dosya)
             return veri.get("proje", [])
 
-    def listeyi_tazele(self):
-        self.projeler = self.jsonVerileri()
-        self.sAreaGuncelle(self.projeler)
-
-    def sAreaGuncelle(self, liste):
-
-        while self.scrollLayout.count():
-            item = self.verticalLayout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-
-        for proje in liste:
-            self.pWidget = ProjeWidget(Proje.from_dict(proje))
-            self.verticalLayout.addWidget(self.pWidget,1)
-            self.pWidget.show()
-
-        self.scrollAreaWidgetContents.adjustSize()
-        self.scrollArea.update()
-
 class GoruntulePenceresi(QDialog):
+    yenile_sinyali = Signal()
+
     def __init__(self, proje:Proje):
         super().__init__()
         self.proje = proje
@@ -189,7 +172,7 @@ class GoruntulePenceresi(QDialog):
         self.ui.geriButon.clicked.connect(self.close)
 
         # duzenle butonu baglantisi
-        self.ui.duzenleButon.clicked.connect(self.duzenleAc)
+        self.ui.duzenleButon.clicked.connect(lambda: self.duzenleAc(self.proje))
 
         self.ui.adLbl.setText(self.proje.ad)
         diller_metni = ", ".join(self.proje.diller)
@@ -200,7 +183,9 @@ class GoruntulePenceresi(QDialog):
             yeni_check.setChecked(gorev["durum"])
             self.ui.verticalLayout.addWidget(yeni_check)
 
-    def duzenleAc(self):
+    def duzenleAc(self, proje):
         from frontend.Duzenle import DuzenlePenceresi
-        self.duzenlePencere = DuzenlePenceresi(self.proje)
+        self.duzenlePencere = DuzenlePenceresi(proje)
+        self.duzenlePencere.finished.connect(lambda _: self.yenile_sinyali.emit())
+        self.close()
         self.duzenlePencere.show()
