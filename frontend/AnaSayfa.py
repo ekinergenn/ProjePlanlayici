@@ -50,7 +50,7 @@ class Ui_Dialog(object):
             self.pWidget = ProjeWidget(proje)
             self.scrollLayout.addWidget(self.pWidget, 1)
 
-        self.gridLayout.addWidget(self.scrollArea, 1, 0, 1, 4)
+        self.gridLayout.addWidget(self.scrollArea, 1, 0, 1, 5)
 
         # Combo Box
         self.comboBox = QComboBox(Dialog)
@@ -120,6 +120,23 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.ekleButon, 0, 3, 1, 1)
 
+        #yenile butonu
+        self.yenileButon = QPushButton(Dialog)
+        self.yenileButon.setObjectName(u"yenileButon")
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.yenileButon.sizePolicy().hasHeightForWidth())
+        self.yenileButon.setSizePolicy(sizePolicy)
+        self.yenileButon.setMinimumSize(100, 20)
+        self.yenileButon.setMaximumSize(QSize(100, 16777215))
+        self.yenileButon.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.yenileButon.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.yenileButon.setStyleSheet("background-color: black;"
+                                     "color: white;"
+                                     "font-weight: bold;"
+                                     "border-radius: 10px;")
+        self.gridLayout.addWidget(self.yenileButon, 0, 4, 1, 1)
+
         self.retranslateUi(Dialog)
 
         QMetaObject.connectSlotsByName(Dialog)
@@ -128,6 +145,7 @@ class Ui_Dialog(object):
         self.aramaButonu.clicked.connect(lambda: self.arama(self.projeler))
         self.comboBox.currentTextChanged.connect(lambda: self.tamamlanma(self.projeler, self.comboBox.currentText()))
         self.ekleButon.clicked.connect(lambda: self.ekleAc())
+        self.yenileButon.clicked.connect(lambda: self.listeyi_tazele())
 
     # setupUi
 
@@ -135,6 +153,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Proje Planlayıcı", None))
         Dialog.setStyleSheet("background-color: #969696;")
         self.ekleButon.setText(QCoreApplication.translate("Dialog", u"Ekle", None))
+        self.yenileButon.setText(QCoreApplication.translate("Dialog", u"Yenile", None))
     # retranslateUi
 
     def jsonVerileri(self):
@@ -191,7 +210,6 @@ class Ui_Dialog(object):
                 proje_objesi = veri
 
             self.pWidget = ProjeWidget(proje_objesi)
-            self.pWidget.ana_sayfayi_tazele_sinyali.connect(self.listeyi_tazele)
             self.scrollLayout.addWidget(self.pWidget)
 
         self.scrollAreaWidgetContents.adjustSize()

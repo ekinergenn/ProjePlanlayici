@@ -233,6 +233,7 @@ class Duzenle(Object):
         }
 
         dosya_yolu = "../data/projeler.json"
+        Dialog.accept()
 
         try:
             with open(dosya_yolu, "r", encoding="utf-8") as f:
@@ -248,7 +249,6 @@ class Duzenle(Object):
         try:
             with open(dosya_yolu, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
-            Dialog.accept()
         except Exception as e:
             print(f"Dosya yazılırken hata oluştu: {e}")
 
