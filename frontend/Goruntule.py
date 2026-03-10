@@ -167,19 +167,52 @@ class GoruntulePenceresi(QDialog):
         self.proje = proje
         self.ui = Ui_Dialog()
         self.ui.setupUi(self, proje)
-        self.ui.geriButon.clicked.connect(self.close)
 
-        # sil butonu baglantisi !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #geri don buton baglantısı
+        self.ui.geriButon.clicked.connect(lambda: self.geriDonme())
+
+        # sil butonu baglantisi
         self.ui.silButon.clicked.connect(lambda: self.proje_sil(self.proje.ad))
 
         self.ui.adLbl.setText(self.proje.ad)
         diller_metni = ", ".join(self.proje.diller)
         self.ui.dillerLbl.setText(f"Kullanılan Diller: {diller_metni}")
         self.ui.ilerlemeLbl.setText(f"%{self.proje.ilerleme}")
+        self.checkBoxlar = []
         for gorev in self.proje.yapilacaklar:
             yeni_check = QCheckBox(gorev["is"])
             yeni_check.setChecked(gorev["durum"])
             self.ui.verticalLayout.addWidget(yeni_check)
+            self.checkBoxlar.append(yeni_check)
+
+    def geriDonme(self):
+        yeniYapilacaklar = []
+        for check in self.checkBoxlar:
+            yeniYapilacaklar.append({"is": check.text(),
+                                     "durum": check.isChecked()})
+
+        yapilan = sum(1 for g in yeniYapilacaklar if g["durum"])
+        toplam = len(yeniYapilacaklar)
+        yeni_ilerleme = (yapilan / toplam * 100) if toplam > 0 else 0
+
+        dosya_yolu = "../data/projeler.json"
+        try:
+            with open(dosya_yolu, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            for p in data["proje"]:
+                if p["ad"] == self.proje.ad:
+                    p["yapilacaklar"]= yeniYapilacaklar
+                    p["ilerleme"] = yeni_ilerleme
+                    break
+
+            with open(dosya_yolu, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+
+            self.close()
+
+        except FileNotFoundError:
+            print("Dosya Bulunamadı")
 
     def proje_sil(self, proje_adi):
         dosya_yolu = "../data/projeler.json"
