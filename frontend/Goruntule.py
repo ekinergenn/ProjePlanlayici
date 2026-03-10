@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
@@ -14,7 +15,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
 
 from backend.Proje import Proje
 from frontend.ProjeWidget import ProjeWidget
-from PySide6.QtCore import Signal
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import QUrl
 
 
 class Ui_Dialog(object):
@@ -168,11 +170,11 @@ class GoruntulePenceresi(QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self, proje)
 
-        #geri don buton baglantısı
+        #buton baglantıları
         self.ui.geriButon.clicked.connect(lambda: self.geriDonme())
-
-        # sil butonu baglantisi
         self.ui.silButon.clicked.connect(lambda: self.proje_sil(self.proje.ad))
+        self.ui.gitButon.clicked.connect(self.gitHub)
+        self.ui.dosyaButon.clicked.connect(self.dosyaAc)
 
         self.ui.adLbl.setText(self.proje.ad)
         diller_metni = ", ".join(self.proje.diller)
@@ -184,6 +186,21 @@ class GoruntulePenceresi(QDialog):
             yeni_check.setChecked(gorev["durum"])
             self.ui.verticalLayout.addWidget(yeni_check)
             self.checkBoxlar.append(yeni_check)
+
+    def dosyaAc(self):
+        sabit_yol = "/Users/ekinergen/Desktop/Proje Planlama/"
+        dosya_yolu = self.proje.dosya.strip()
+        dosya_yolu = sabit_yol + dosya_yolu
+        print(dosya_yolu)
+
+        if os.path.exists(dosya_yolu):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dosya_yolu))
+        else:
+            print("Hata: Belirtilen dosya yolu bulunamadı!")
+
+    def gitHub(self):
+        link = QUrl(self.proje.github)
+        QDesktopServices.openUrl(link)
 
     def geriDonme(self):
         yeniYapilacaklar = []

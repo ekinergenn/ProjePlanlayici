@@ -1,9 +1,9 @@
 {
     "proje": [
         {
-            "ad": "örnek1",
-            "amac": "ornek 1 projesinin amacı...",
-            "ilerleme": 0,
+            "ad": "\u00f6rnek1",
+            "amac": "ornek 1 projesinin amac\u0131...",
+            "ilerleme": 0.0,
             "yapilacaklar": [
                 {
                     "is": "Kod yaz",
@@ -14,16 +14,16 @@
                     "durum": false
                 }
             ],
-            "github": "ornek1.githublink",
+            "github": "https://github.com/ekinergenn/ProjePlanlayici/commits/main/",
             "diller": [
                 "python",
                 "java"
             ],
-            "dosya": "dosyakonum1"
+            "dosya": "Proje1"
         },
         {
-            "ad": "örnek2",
-            "amac": "ornek 2 projesinin amacı...",
+            "ad": "\u00f6rnek2",
+            "amac": "ornek 2 projesinin amac\u0131...",
             "ilerleme": 10,
             "yapilacaklar": [
                 {
@@ -43,7 +43,7 @@
         },
         {
             "ad": "bitmis",
-            "amac": "ornek projesinin amacı...",
+            "amac": "ornek projesinin amac\u0131...",
             "ilerleme": 100,
             "yapilacaklar": [
                 {
@@ -69,15 +69,15 @@
             "ilerleme": 66.66666666666666,
             "yapilacaklar": [
                 {
-                    "is": "Örnek Yapılacak 1",
+                    "is": "\u00d6rnek Yap\u0131lacak 1",
                     "durum": true
                 },
                 {
-                    "is": "Örnek Yapılacak 2",
+                    "is": "\u00d6rnek Yap\u0131lacak 2",
                     "durum": true
                 },
                 {
-                    "is": "Örnek Yapılacak 3",
+                    "is": "\u00d6rnek Yap\u0131lacak 3",
                     "durum": false
                 }
             ],
