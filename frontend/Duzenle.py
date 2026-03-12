@@ -10,7 +10,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
                                QLabel, QPushButton, QScrollArea, QSizePolicy,
-                               QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog)
+                               QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog, QMessageBox)
 from shiboken6.Shiboken import Object
 
 from backend.Proje import Proje
@@ -183,9 +183,9 @@ class Duzenle(Object):
         QMetaObject.connectSlotsByName(Dialog)
 
         # buton baglantilari
-        self.kaydetButon.clicked.connect(lambda: self.jsona_kaydet(Dialog,self.proje))
+        self.kaydetButon.clicked.connect(lambda: self.kaydetMsg(Dialog))
         self.ekleButon.clicked.connect(self.yapilacakEklePopup)
-        self.secilenButon.clicked.connect(self.secilenSil)
+        self.secilenButon.clicked.connect(self.secilenSilOnay)
         # setupUi
 
     def retranslateUi(self, Dialog):
@@ -202,6 +202,17 @@ class Duzenle(Object):
         self.ilerlemeLbl.setText(QCoreApplication.translate("Dialog", u"İlerleme: %x", None))
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
         # retranslateUi
+
+    def kaydetMsg(self, Dialog):
+        msg = QMessageBox()
+        msg.setWindowTitle("Kaydet")
+        msg.setText("Proje bu haliyle kaydedilsin mi?")
+        evet = msg.addButton("Evet", QMessageBox.AcceptRole)
+        hayir = msg.addButton("Hayır", QMessageBox.RejectRole)
+
+        msg.exec()
+        if msg.clickedButton() == evet:
+            self.jsona_kaydet(Dialog, self.proje)
 
     def jsona_kaydet(self, Dialog, proje:Proje):
         self.proje = proje
@@ -277,6 +288,18 @@ class Duzenle(Object):
         yeni_check.setStyleSheet("color: white; font-size: 14px;")
 
         self.verticalLayout.addWidget(yeni_check)
+
+    def secilenSilOnay(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Silme Onayı")
+        msg.setText("Seçilenler silinsin mi?")
+        evet=msg.addButton("Evet", QMessageBox.AcceptRole)
+        hayir=msg.addButton("Hayır", QMessageBox.RejectRole)
+
+        msg.exec()
+
+        if msg.clickedButton() == evet:
+            self.secilenSil()
 
     def secilenSil(self):
         for i in reversed(range(self.verticalLayout.count())):

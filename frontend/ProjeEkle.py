@@ -13,7 +13,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
                            QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
                                QLabel, QPushButton, QScrollArea, QSizePolicy,
-                               QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog)
+                               QVBoxLayout, QWidget, QLineEdit, QTextEdit, QInputDialog, QMessageBox)
 
 from backend.Proje import Proje
 
@@ -254,6 +254,13 @@ class ProjeEkle(object):
                 json.dump(data, f, indent=4, ensure_ascii=False)
         except Exception as e:
             print(f"Dosya yazılırken hata oluştu: {e}")
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Proje Ekleme")
+        msg.setText("Proje başarıyla kaydedildi.")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec()
 
         Dialog.close()
 

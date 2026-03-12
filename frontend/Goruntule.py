@@ -11,7 +11,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
                            QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QGridLayout,
                                QLabel, QPushButton, QScrollArea, QSizePolicy,
-                               QVBoxLayout, QWidget)
+                               QVBoxLayout, QWidget, QMessageBox)
 
 from backend.Proje import Proje
 from frontend.ProjeWidget import ProjeWidget
@@ -172,7 +172,7 @@ class GoruntulePenceresi(QDialog):
 
         #buton baglantıları
         self.ui.geriButon.clicked.connect(lambda: self.geriDonme())
-        self.ui.silButon.clicked.connect(lambda: self.proje_sil(self.proje.ad))
+        self.ui.silButon.clicked.connect(lambda: self.silOnay())
         self.ui.gitButon.clicked.connect(self.gitHub)
         self.ui.dosyaButon.clicked.connect(self.dosyaAc)
 
@@ -230,6 +230,18 @@ class GoruntulePenceresi(QDialog):
 
         except FileNotFoundError:
             print("Dosya Bulunamadı")
+
+    def silOnay(self):
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Silme Onayı")
+        msg.setText("Projeyi silmek istediğinize emin misiniz?")
+        evet = msg.addButton("Evet", QMessageBox.AcceptRole)
+        hayir = msg.addButton("Hayır", QMessageBox.RejectRole)
+
+        msg.exec()
+
+        if msg.clickedButton() == evet:
+            self.proje_sil(self.proje.ad)
 
     def proje_sil(self, proje_adi):
         dosya_yolu = "../data/projeler.json"
