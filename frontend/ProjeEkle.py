@@ -211,6 +211,14 @@ class ProjeEkle(object):
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
     # retranslateUi
 
+    def dosyaYoluBul(self, goreceli_yol):
+        if getattr(sys, 'frozen', False):
+            base_path = os.environ.get('RESOURCEPATH', os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        else:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, goreceli_yol)
+
     def jsona_kaydet(self, Dialog):
         yapilacakSayisi = 0
         yapilmislarSayisi = 0
@@ -237,7 +245,7 @@ class ProjeEkle(object):
             "dosya": self.dosyaLine.text().strip(),
         }
 
-        dosya_yolu = "../data/projeler.json"
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
 
         try:
             with open(dosya_yolu, "r", encoding="utf-8") as f:

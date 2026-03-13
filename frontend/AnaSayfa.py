@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from tokenize import String
 
@@ -11,7 +12,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QGridLayout,
                                QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
-                               QWidget, QLineEdit, QVBoxLayout)
+                               QWidget, QLineEdit, QVBoxLayout, QMessageBox)
 
 from ProjeWidget import ProjeWidget
 from backend.Proje import Proje
@@ -156,8 +157,31 @@ class Ui_Dialog(object):
         self.yenileButon.setText(QCoreApplication.translate("Dialog", u"Yenile", None))
     # retranslateUi
 
+    def dosyaYoluBul(self, goreceli_yol):
+        if getattr(sys, 'frozen', False):
+            base_path = os.environ.get('RESOURCEPATH', os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        else:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, goreceli_yol)
+
     def jsonVerileri(self):
-        with open("../data/projeler.json", "r", encoding="utf-8") as dosya:
+        yol = self.dosyaYoluBul("data/projeler.json")
+
+        msg = QMessageBox()
+        msg.setText(f"Şu an bu dosyayı okuyorum:\n{yol}")
+        msg.exec()
+
+        try:
+            with open(yol, "r", encoding="utf-8") as dosya:
+                veri = json.load(dosya)
+                return veri.get("proje", [])
+        except FileNotFoundError:
+            print(f"DEBUG: Dosya bulunamadı! Bakılan yer: {yol}")
+            return []
+
+    def jsonVerileri(self):
+        with open(self.dosyaYoluBul("data/projeler.json"), "r") as dosya:
             veri = json.load(dosya)
             return veri.get("proje", [])
 
@@ -215,7 +239,7 @@ class Ui_Dialog(object):
         self.scrollAreaWidgetContents.adjustSize()
         self.scrollArea.update()
 
-#main       --DAHA SONRA SİLİNECEK--
+#main
 class MyApp(QDialog):
     def __init__(self):
         super().__init__()

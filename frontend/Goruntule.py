@@ -82,7 +82,7 @@ class Ui_Dialog(object):
         # proje adı labelı
         self.adLbl = QLabel(Dialog)
         self.adLbl.setObjectName(u"adLbl")
-        self.adLbl.setMaximumSize(QSize(150, 35))
+        self.adLbl.setMaximumSize(QSize(400, 35))
         self.adLbl.setMinimumSize(QSize(150, 35))
         self.adLbl.setStyleSheet("color: black;"
                                  "font: 30px bold;")
@@ -157,8 +157,17 @@ class Ui_Dialog(object):
 
     # retranslateUi
 
+    def dosyaYoluBul(self, goreceli_yol):
+        if getattr(sys, 'frozen', False):
+            base_path = os.environ.get('RESOURCEPATH', os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        else:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, goreceli_yol)
+
     def jsonVerileri(self):
-        with open("../data/projeler.json", "r", encoding="utf-8") as dosya:
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
+        with open(dosya_yolu, "r", encoding="utf-8") as dosya:
             veri = json.load(dosya)
             return veri.get("proje", [])
 
@@ -187,6 +196,14 @@ class GoruntulePenceresi(QDialog):
             self.ui.verticalLayout.addWidget(yeni_check)
             self.checkBoxlar.append(yeni_check)
 
+    def dosyaYoluBul(self, goreceli_yol):
+        if getattr(sys, 'frozen', False):
+            base_path = os.environ.get('RESOURCEPATH', os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        else:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, goreceli_yol)
+
     def dosyaAc(self):
         sabit_yol = "/Users/ekinergen/Desktop/Proje Planlama/"
         dosya_yolu = self.proje.dosya.strip()
@@ -212,7 +229,7 @@ class GoruntulePenceresi(QDialog):
         toplam = len(yeniYapilacaklar)
         yeni_ilerleme = (yapilan / toplam * 100) if toplam > 0 else 0
 
-        dosya_yolu = "../data/projeler.json"
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
         try:
             with open(dosya_yolu, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -244,7 +261,7 @@ class GoruntulePenceresi(QDialog):
             self.proje_sil(self.proje.ad)
 
     def proje_sil(self, proje_adi):
-        dosya_yolu = "../data/projeler.json"
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
         self.accept()
 
         try:

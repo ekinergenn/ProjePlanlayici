@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
@@ -203,6 +204,14 @@ class Duzenle(Object):
         self.amacTxtEdit.setText(QCoreApplication.translate("Dialog", None))
         # retranslateUi
 
+    def dosyaYoluBul(self, goreceli_yol):
+        if getattr(sys, 'frozen', False):
+            base_path = os.environ.get('RESOURCEPATH', os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        else:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, goreceli_yol)
+
     def kaydetMsg(self, Dialog):
         msg = QMessageBox()
         msg.setWindowTitle("Kaydet")
@@ -243,7 +252,7 @@ class Duzenle(Object):
             "dosya": self.dosyaLine.text().strip(),
         }
 
-        dosya_yolu = "../data/projeler.json"
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
         Dialog.accept()
 
         try:
@@ -311,7 +320,7 @@ class Duzenle(Object):
                 widget.deleteLater()
 
     def proje_sil(self, proje_adi):
-        dosya_yolu = "../data/projeler.json"
+        dosya_yolu = self.dosyaYoluBul("data/projeler.json")
 
         try:
             with open(dosya_yolu, "r", encoding="utf-8") as f:
